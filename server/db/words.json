@@ -34,6 +34,17 @@
         "tags": [
           "adj"
         ]
+      },
+      {
+        "tr_id": 2,
+        "partOfLang": "adj",
+        "translation": "нездоланний",
+        "examples": null,
+        "explanation": null,
+        "association": null,
+        "tags": [
+          "adj"
+        ]
       }
     ]
   }
