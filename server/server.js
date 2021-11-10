@@ -7,7 +7,8 @@ const app = express();
 app.use(cors());
 
 app.use('/graphql', graphqlHTTP({
-    graphiql: true
+    graphiql: true,
+    schema
 }));
 
 app.listen(5000, () => console.log("Server is running on port 5000"));

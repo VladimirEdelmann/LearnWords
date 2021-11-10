@@ -1,0 +1,40 @@
+[
+  {
+    "id": 1,
+    "foreignWord": "ample",
+    "translations": [
+      {
+        "tr_id": 1,
+        "partOfLang": "adj",
+        "translation": "достатній",
+        "examples": [
+          "disk size is ample"
+        ],
+        "explanation": "the exact amount you need for something",
+        "association": "ample - sample",
+        "tags": [
+          "adj"
+        ]
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "foreignWord": "formidable",
+    "translations": [
+      {
+        "tr_id": 1,
+        "partOfLang": "adj",
+        "translation": "грізний",
+        "examples": [
+          "formidable envirenment"
+        ],
+        "explanation": "the thing of something you can fear because of huge or power",
+        "association": "just imagine something formidable",
+        "tags": [
+          "adj"
+        ]
+      }
+    ]
+  }
+]
