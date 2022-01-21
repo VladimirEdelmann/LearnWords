@@ -11,6 +11,7 @@ export const GET_WORDS = gql`
         translation
         examples
         association
+        explanation
         tags
       }
     }

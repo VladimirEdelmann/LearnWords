@@ -11,10 +11,19 @@ const App = () => {
   const [words, setWords] = useState([]);
   const { data, loading, error } = useQuery(GET_WORDS);
 
-  //const [addWord] = useMutation(ADD_WORD);
+  const [addWord] = useMutation(ADD_WORD);
 
   const [foreignWord, setForeignWord] = useState('');
-  const [translatedWord, setTranslatedWord] = useState('');
+  const [translations, setTranslations] = useState([{
+    tr_id: undefined,
+    partOflang: undefined,
+    translation: undefined,
+    examples: [],
+    explanation: undefined,
+    association: undefined,
+    tags: []
+  }]);
+  const [trTranslation, setTrTranslation] = useState('');
   
   useEffect(() => {
     if(!loading){
@@ -40,16 +49,25 @@ const App = () => {
 
     // words.push(word);
     // alert("last added word" + words[words.length]);
+    setTranslations(translations.map( (tr, ind) => {
+      tr.tr_id = ind + 1;
+      tr.translation = trTranslation;
+      return tr;
+    }));
+    console.log(trTranslation);
+    console.log(translations);
+
     event.preventDefault();
-    // addWord({
-    //   variables: {
-    //     foreignWord, translatedWord
-    //   }
-    // }).then(({data}) => {
-    //   console.log(data);
-    //   setForeignWord('');
-    //   setTranslatedWord('');
-    // });
+    addWord({
+      variables: {
+        foreignWord, translations
+      }
+    }).then(({data}) => {
+      console.log(data);
+      setForeignWord('');
+      setTranslations('');
+      setTrTranslation('');
+    });
   }
 
   return (
@@ -60,7 +78,7 @@ const App = () => {
             <Form.Control value={foreignWord} onChange={e => setForeignWord(e.target.value)} type="text" placeholder="Add foreign word" />
           </Col>
           <Col>
-            <Form.Control value={translatedWord} onChange={e => setTranslatedWord(e.target.value)} type="text" placeholder="Add translation" />
+            <Form.Control value={trTranslation} onChange={e => setTrTranslation(e.target.value)} type="text" placeholder="Add translation" />
           </Col>
           <Col>
             <Button type="Submit">Add</Button>
@@ -70,8 +88,25 @@ const App = () => {
       <header>
         <p>Hallo Freunde!</p>
         {words.map( word => {
-          let tr = word.translations.map( tr => (tr.translation) );
-          return <div>{word.id}. {word.foreignWord} - {tr.join(', ')}</div>;
+          return (
+            <div key={word.id}>
+              <h3>{word.foreignWord}</h3>
+              {word.translations.map( tr => {
+                let ex = tr.examples;
+                // ex = ex.join(',');
+                console.log("in this")
+                console.log(ex)
+                return (
+                  <div key={tr.tr_id}>
+                    <div>{tr.tr_id}. {tr.translation}</div>
+                    <div>Examples: {tr.examples}</div>
+                    <div>Explanation: {tr.explanation}</div>
+                    <div>Association: {tr.association}</div>
+                  </div>
+                );
+              })}
+            </div>
+          )
         })}
       </header>
     </div>
