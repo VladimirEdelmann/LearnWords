@@ -9,7 +9,7 @@ const {
 } = require('graphql');
 const fs = require('fs');
 const fileName = './db/words.json';
-var words = require('/LearnWords/server/db/words.json');
+var words = require('./db/words.json');
 
 const WordType = new GraphQLObjectType({
     name: "WordType",

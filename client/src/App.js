@@ -86,22 +86,22 @@ const App = () => {
         </Row>
       </Form>
       <header>
-        <p>Hallo Freunde!</p>
         {words.map( word => {
           return (
             <div key={word.id}>
               <h3>{word.foreignWord}</h3>
               {word.translations.map( tr => {
-                let ex = tr.examples;
-                // ex = ex.join(',');
-                console.log("in this")
-                console.log(ex)
+                let ex = ''
+                if (tr.examples) {
+                  ex = tr.examples.map( (x, ind) => (<div key={ind} className='tr-exa'>{`${ind + 1}. ` + x}</div>));
+                }
                 return (
+                  
                   <div key={tr.tr_id}>
                     <div>{tr.tr_id}. {tr.translation}</div>
-                    <div>Examples: {tr.examples}</div>
-                    <div>Explanation: {tr.explanation}</div>
-                    <div>Association: {tr.association}</div>
+                    <div className='examples'>Examples: {ex}</div>
+                    <div className='explanation'>Explanation: <div className='tr-exp'>{tr.explanation}</div></div>
+                    <div className='association'>Association: <div className='tr-ass'>{tr.association}</div></div>
                   </div>
                 );
               })}
