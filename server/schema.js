@@ -5,11 +5,26 @@ const {
     GraphQLList, 
     GraphQLNonNull, 
     GraphQLObjectType, 
-    GraphQLInputObjectType 
+    GraphQLInputObjectType,
+    GraphQLError
 } = require('graphql');
 const fs = require('fs');
 const fileName = './db/words.json';
 var words = require('./db/words.json');
+
+const getAllForeignWords = () => ( words.map( (word) => (word.foreignWord)) );
+
+const getTranslationsByForeignWord = (foreignWord) => {
+    var rs = []
+    words.some( word => {
+        if( word.foreignWord === foreignWord ) {
+            rs = word.translations;
+            return true;
+        }
+        return false;
+    });
+    return rs;
+}
 
 const WordType = new GraphQLObjectType({
     name: "WordType",
@@ -18,6 +33,16 @@ const WordType = new GraphQLObjectType({
         id: { type: GraphQLNonNull(GraphQLInt) },
         foreignWord: { type: GraphQLNonNull(GraphQLString) },
         translations: { type: GraphQLNonNull(GraphQLList(WordTranslationType)) }
+    })
+});
+
+const WordReturnType = new GraphQLObjectType({
+    name: "WordReturnType",
+    description: "Doesn't return WordTranslationType as list",
+    fields: () => ({
+        id: { type: GraphQLNonNull(GraphQLInt) },
+        foreignWord: { type: GraphQLNonNull(GraphQLString) },
+        translations: { type: GraphQLNonNull(WordTranslationType) }
     })
 });
 
@@ -39,13 +64,21 @@ const RootQueryType = new GraphQLObjectType({
     name: "RootQueryType",
     description: "Top level query type",
     fields: () => ({
-        getWord: {
+        getWordByID: {
             type: WordType,
             description: "Returns a word by id",
             args: {
                 id: { type: GraphQLNonNull(GraphQLInt) }
             },
             resolve: (parent, args) => words.find( word => word.id === args.id)  
+        },
+        getWordByName: {
+            type: WordType,
+            description: "Returns a word by foreign name",
+            args: {
+                foreignWord: { type: GraphQLNonNull(GraphQLString) }
+            },
+            resolve: (parent, args) => words.find( word => word.foreignWord === args.foreignWord)
         },
         getAllWords: {
             type: GraphQLList(WordType),
@@ -123,6 +156,78 @@ const verifyTranslation = (ts, existTs) => { // try to break to few functions
     return rst;
 }
 
+// gets an array of object that have the value from the field and name of that field
+// throws an error if field is empty
+const isFieldsEmpty = (fields) => {
+    var i = 0;
+    while (i < fields.length) {
+        if (fields[i].value === "") {
+            throw new GraphQLError('EMPTY_FIELD_ERROR: The field ' + fields[i].name + ' must not be empty.' );
+        }
+        i++;
+    }
+}
+
+// gets the elements of the object, returns complete object
+var setAllWords = (id, foreignWord, translations) => {
+    return {
+        id: id,
+        foreignWord: foreignWord,
+        translations: translations
+    }
+}
+
+// set new translation in an array of transtations that belongs to some foreign word
+// get foreign word and usual fields of translation 
+// returns an array of translations
+var setNewTranslation = (foreignWord, partOfLang, translation, examples, explanation, association, tags) => {
+    var thisword
+
+    isFieldsEmpty([ 
+        { value: foreignWord, name: "Foreign word" } 
+    ]);
+
+    if( findFireignWord(foreignWord) ) {
+        if( findTranslation(translation) ) {
+            throw new GraphQLError("Such translation already exists");
+        }
+        words.some( word => {
+            isFieldsEmpty([ 
+                { value: translation, name: "Translation" } 
+            ]);
+            
+            if (word.foreignWord === foreignWord) {
+                word.translations.push({
+                    tr_id: getTranslationsByForeignWord(foreignWord).length + 1,
+                    partOfLang: partOfLang,
+                    translation: translation,
+                    examples: examples,
+                    explanation: explanation,
+                    association: association,
+                    tags: tags
+                });
+                thisword = word;
+                return true;
+            }
+        });
+        return setAllWords(thisword.id, thisword.foreignWord, thisword.translations);
+    } else { 
+        throw new GraphQLError("You trying to add new foreign word, not new translation. " + 
+            "\nYou need to add this word as a new different word"); 
+    }
+}
+
+// searches for at least one translation and returns if found
+var findTranslation = (someTr) => {
+    return words.some( word => {
+        return word.translations.some( tr => (tr.translation === someTr));
+    });
+}
+
+var findFireignWord = (fw) => {
+    return words.some( word => (word.foreignWord === fw ) );
+}
+
 const RootMutationType = new GraphQLObjectType({
     name: "RootMutationType",
     description: "Top level mutation type",
@@ -135,10 +240,23 @@ const RootMutationType = new GraphQLObjectType({
                 translations: { type: GraphQLNonNull(GraphQLList(WordTranslationInputType)) }
             },
             resolve: (parent, args) => {
+                //console.log(JSON.stringify(args.translations, null, 2));
+                isFieldsEmpty([ 
+                    { value: args.foreignWord, name: "Foreign word" } 
+                ]);
+                
                 let word = {
                     id: words[words.length - 1].id + 1,
                     foreignWord: args.foreignWord,
                     translations: args.translations.map( (tr, ind) => {
+                        isFieldsEmpty([
+                            { value: tr.translation, name: "Translation" }
+                        ]);
+                        console.log("args.foreignWord")
+                        console.log(args.foreignWord)
+                        if (getTranslationsByForeignWord(args.foreignWord).find( el => el === tr.translation)) {
+                            throw new GraphQLError("This word is already added in dictionary");
+                        }
                         tr.tr_id = ind + 1;
                         return tr;
                     })
@@ -149,7 +267,30 @@ const RootMutationType = new GraphQLObjectType({
                 //     if (err) return console.log(err);
                 // });
                 return word;
-            } 
+            }
+        },
+        addNewTranslation: {
+            type: WordType,
+            description: "Adds new translation to current foreign word",
+            args: {
+                foreignWord: { type: GraphQLNonNull(GraphQLString) },
+                translation: { type: GraphQLNonNull(WordTranslationInputType) }
+            },
+            resolve: (parent, args) => {
+                console.log("The addNewTranslation goes")
+                var rs = setNewTranslation(
+                    args.foreignWord,
+                    args.translation.partOfLang, 
+                    args.translation.translation, 
+                    args.translation.examples, 
+                    args.translation.explanation, 
+                    args.translation.association, 
+                    args.translation.tags
+                );
+                console.log("Word Object")
+                console.log(rs)
+                return rs;
+            }
         },
         editWord: {
             type: WordType,
@@ -167,24 +308,20 @@ const RootMutationType = new GraphQLObjectType({
                     }
                 });
                 
-                let thisWord = {
-                    id: args.id,
-                    foreignWord: args.foreignWord,
-                    translations: args.translations
-                }
+                var rs = setAllWords(args.id, args.foreignWord, args.translations);
 
                 words = words.map( word => {
                     if (args.id === word.id) {
-                        word = thisWord;
+                        word = rs;
                     }
                     return word;
                 });
                 console.log("this2")
-                console.log(JSON.stringify(thisWord, null, 2));
+                console.log(JSON.stringify(rs, null, 2));
                 // fs.writeFile(fileName, JSON.stringify(words, null, 2), (err) => {
                 //     if (err) return console.log(err);
                 // });
-                return thisWord;
+                return rs;
             }
         },
         deleteWord: {

@@ -1,0 +1,3 @@
+It is needed to add not only the new foreign word, but also new translation for that word in BE (backend)
+Webapp adds empty form. It needs verificaton on some fields is empty, because foreign word field and translation field doesnt have to be empty
+To name fields and make tags to be added/removed
