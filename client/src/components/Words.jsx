@@ -28,21 +28,39 @@ function GetWords() {
         {words.map( word => {
         return (
           <div key={word.id}>
-          <h3>{word.foreignWord}</h3>
+          <div style={{fontSize: "22px", fontWeight: 700}}>{word.foreignWord}</div>
           {word.translations.map( tr => {
-              let ex = '';
-              if (tr.examples) {
-              ex = tr.examples.map( (x, ind) => (<div key={ind} className='tr-exa'>{`${ind + 1}. ` + x}</div>));
+            var exList = tr.examples.map( (ex) => {
+              console.log("ex")
+              console.log(ex)
+              if(ex !== '' && ex !== null && ex !== undefined) {
+                return ex;
+              } else {
+                return false;
               }
-              return (
-              
-              <div key={tr.tr_id}>
-                  <div>{tr.tr_id}. {tr.translation}</div>
-                  <div className='examples'>Examples: {ex}</div>
-                  <div className='explanation'>Explanation: <div className='tr-exp'>{tr.explanation}</div></div>
-                  <div className='association'>Association: <div className='tr-ass'>{tr.association}</div></div>
+            });
+            var exRs = exList.map( (ex, i) => {
+              if(ex) {
+                return <div>{`${i}. ${ex}`}</div>;
+              } else {
+                return false;
+              }
+            });
+            let didntset = (name) => <div>{`${name}: Didnt set`}</div>;
+            let pl = tr.partOfLang ? <div style={{paddingTop: "5px"}}><b>{`${tr.partOfLang}`}</b></div> : didntset("Lang part");
+            let expl = tr.explanation 
+              ? <div className='explanation'>Explanation: <div className='tr-exp'>{tr.explanation}</div></div> 
+              : didntset("Explanation");
+            
+            return (
+              <div style={{paddingLeft: "20px"}} key={tr.tr_id}>
+                {pl}
+                <div>{tr.tr_id}. {tr.translation}</div>
+                <div>{exRs}</div>
+                {expl}
+                <div className='association'>Association: <div className='tr-ass'>{tr.association}</div></div>
               </div>
-              );
+            );
           })}
           </div>
         )

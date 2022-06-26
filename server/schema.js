@@ -12,6 +12,9 @@ const fs = require('fs');
 const fileName = './db/words.json';
 var words = require('./db/words.json');
 
+const knex = require('knex');
+const knexfile = require('./knexfile');
+
 const getAllForeignWords = () => ( words.map( (word) => (word.foreignWord)) );
 
 const getTranslationsByForeignWord = (foreignWord) => {
@@ -33,6 +36,20 @@ const WordType = new GraphQLObjectType({
         id: { type: GraphQLNonNull(GraphQLInt) },
         foreignWord: { type: GraphQLNonNull(GraphQLString) },
         translations: { type: GraphQLNonNull(GraphQLList(WordTranslationType)) }
+    })
+});
+
+const NativeWordType = new GraphQLObjectType({
+    name: "NativeWordType",
+    description: "",
+    fields: () => ({
+        native_word_id: { type: GraphQLNonNull(GraphQLInt) },
+        lang_part: { type: GraphQLString },
+        native_word: { type: GraphQLNonNull(GraphQLString) },
+        examples: { type: GraphQLList(GraphQLString) },
+        explanation: { type: GraphQLString },
+        association: { type: GraphQLString },
+        tags: { type: GraphQLList(GraphQLString) }
     })
 });
 
@@ -84,6 +101,19 @@ const RootQueryType = new GraphQLObjectType({
             type: GraphQLList(WordType),
             description: "Returns all words",
             resolve: () => words     
+        },
+        getNativeWords: {
+            type: NativeWordType,
+            description: "Returns a list of native words",
+            resolve: () => {
+                // let rs = knex('native_words').select('*');
+                // console.log(rs);
+                let rs = knex.raw('select * from native_words;').catch(err => {
+                    console.log(err);
+                })
+                console.log(JSON.stringify(rs, null, 0))
+                //return rs;
+            }
         }
     })
 });

@@ -31,8 +31,8 @@ function AddTranslationForm() {
   const [association, setAssociation] = useState('');
   const [tags, setTags] = useState(['']);
 
-  var [isEmptyError, setEmptyError] = useState();
-  var [isExistError, setExistError] = useState();
+  var [fwError, setFwError] = useState();
+  var [nwError, setNwError] = useState();
 
   useEffect(() => {
     if(!loading){
@@ -74,23 +74,19 @@ function AddTranslationForm() {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    // let isEmptyError = isFieldEmply({value: foreignWord, fieldName: "Foreign word"});
-    // let isExistError = isTranslationExist({value: native, fieldName: "Translation"});
+    let nativeWordError = isTranslationExist({value: native, fieldName: "Translation"});
 
-    errorHandler([
-      {value: foreignWord, fieldName: "Foreign word", errorType: "EmptyError", func: isFieldEmply, setError: setEmptyError},
-      {value: native, fieldName: "Translation", errorType: "ExistError", func: isTranslationExist, setError: setExistError}
-    ])
+    if ( emptynessHandler([
+      {value: foreignWord, fieldName: "Foreign word", setError: setFwError},
+      {value: native, fieldName: "Translation", setError: setNwError}
+    ]) ) {
+      return;
+    }
 
-    // if( isEmptyError ) {
-    //   setEmptyError(isEmptyError);
-    //   throw Error('The field "Forein word" not must be empty');
-    // }
-
-    // if( isExistError ) {
-    //   setExistError(isExistError);
-    //   throw Error('Translation "' + native + '" already exists');
-    // }
+    if( nativeWordError ) {
+      setNwError(nativeWordError);
+      return;
+    }
 
     setTranslations(translations.map( (tr, ind) => {
       tr.tr_id = ind + 1;
@@ -183,17 +179,17 @@ function AddTranslationForm() {
     return findTranslation(error.value) && <div style={{color: "red"}}>Dublicate Error: Translation "{error.value}" already exists</div>;
   }
 
-  const errorHandler = (error) => {
-    var i = 0;
+  const emptynessHandler = (error) => {
+    var i = 0, rs = false;
     while(i < error.length) {
-      if ( error[i].errorType === "EmptyError" ) {
-        let errorTemp = error[i].func({ value: error[i].value, fieldName: error[i].fieldName })
-        if ( errorTemp ) {
-          error[i].setError(errorTemp);
-        }
-      }
+      let errorTemp = isFieldEmply({ value: error[i].value, fieldName: error[i].fieldName })
+      if ( errorTemp ) {
+        error[i].setError(errorTemp);
+        rs = true;
+      } else { error[i].setError(false) }
       i++;
     }
+    return rs;
   }
   
   return (
@@ -204,14 +200,14 @@ function AddTranslationForm() {
             <Form.Label>Foreign word</Form.Label>
             <Form.Control value={foreignWord} onChange={e => setForeignWord(e.target.value)} type="text" placeholder="Add foreign word" />
           </Form.Group>
-          { isEmptyError }
+          { fwError }
         </Col>
         <Col>
           <Form.Group>
             <Form.Label>Translation</Form.Label>
             <Form.Control value={native} onChange={e => setNative(e.target.value)} type="text" placeholder="Add translation" />
           </Form.Group>
-          { isExistError }
+          { nwError }
         </Col>
       </Row>
       <Row className="mb-3">
