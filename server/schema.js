@@ -13,7 +13,8 @@ const fileName = './db/words.json';
 var words = require('./db/words.json');
 
 const knex = require('knex');
-const knexfile = require('./knexfile');
+const knexfile = require('./db/knexfile');
+const db = require('./db/connect');
 
 const getAllForeignWords = () => ( words.map( (word) => (word.foreignWord)) );
 
@@ -43,7 +44,7 @@ const NativeWordType = new GraphQLObjectType({
     name: "NativeWordType",
     description: "",
     fields: () => ({
-        native_word_id: { type: GraphQLNonNull(GraphQLInt) },
+        id: { type: GraphQLNonNull(GraphQLInt) },
         lang_part: { type: GraphQLString },
         native_word: { type: GraphQLNonNull(GraphQLString) },
         examples: { type: GraphQLList(GraphQLString) },
@@ -108,11 +109,20 @@ const RootQueryType = new GraphQLObjectType({
             resolve: () => {
                 // let rs = knex('native_words').select('*');
                 // console.log(rs);
-                let rs = knex.raw('select * from native_words;').catch(err => {
-                    console.log(err);
-                })
-                console.log(JSON.stringify(rs, null, 0))
+                // let rs = knex.raw('select * from native_words;').catch(err => {
+                //     console.log(err);
+                // })
+                // console.log(JSON.stringify(rs, null, 0))
                 //return rs;
+                let arr = []
+                db('native_words')
+                .select('*')
+                .then(function(item) {
+                //   for(let i = 0; i < item.length; i++) {
+                //     arr[i] = item[i].id
+                //   }
+                console.log(item)
+                });
             }
         }
     })

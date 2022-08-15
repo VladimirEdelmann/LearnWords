@@ -30,27 +30,13 @@ function GetWords() {
           <div key={word.id}>
           <div style={{fontSize: "22px", fontWeight: 700}}>{word.foreignWord}</div>
           {word.translations.map( tr => {
-            // var exList = tr.examples.map( (ex) => {
-            //   console.log("ex")
-            //   console.log(ex)
-            //   if(ex !== '' && ex !== null && ex !== undefined) {
-            //     return ex;
-            //   } else {
-            //     return false;
-            //   }
-            // });
-            // var exRs = exList.map( (ex, i) => {
-            //   if(ex) {
-            //     return <div>{`${i}. ${ex}`}</div>;
-            //   } else {
-            //     return false;
-            //   }
-            // });
             
             let didntset = (name) => <div>{`${name}: Didnt set`}</div>;
-            var filtered_examples = tr.examples ? tr.examples.map( (e, i) => <div key={i}>{`${++i}. ${e}`}</div> ) 
-            : "Didn't set";
-            console.log(filtered_examples)
+
+            var filtered_examples = tr.examples 
+              ? tr.examples.map( (e, i) => <div key={i}>{`${++i}. ${e}`}</div> ) 
+              : "Didn't set";
+
             var div_examples = <div>Examples: {filtered_examples}</div>;
             let pl = tr.partOfLang ? <div style={{paddingTop: "5px"}}><b>{`${tr.partOfLang}`}</b></div> : didntset("Lang part");
             let expl = tr.explanation 
