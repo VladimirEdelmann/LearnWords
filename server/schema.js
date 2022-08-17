@@ -15,6 +15,7 @@ var words = require('./db/words.json');
 const knex = require('knex');
 const knexfile = require('./db/knexfile');
 const db = require('./db/connect');
+const nativeWordsQueries = require('./dao/queries/NativeWordsQueries')
 
 const getAllForeignWords = () => ( words.map( (word) => (word.foreignWord)) );
 
@@ -42,7 +43,7 @@ const WordType = new GraphQLObjectType({
 
 const NativeWordType = new GraphQLObjectType({
     name: "NativeWordType",
-    description: "",
+    description: "Represents native words",
     fields: () => ({
         id: { type: GraphQLNonNull(GraphQLInt) },
         lang_part: { type: GraphQLString },
@@ -104,7 +105,7 @@ const RootQueryType = new GraphQLObjectType({
             resolve: () => words     
         },
         getNativeWords: {
-            type: NativeWordType,
+            type: GraphQLList(NativeWordType),
             description: "Returns a list of native words",
             resolve: () => {
                 // let rs = knex('native_words').select('*');
@@ -114,15 +115,25 @@ const RootQueryType = new GraphQLObjectType({
                 // })
                 // console.log(JSON.stringify(rs, null, 0))
                 //return rs;
-                let arr = []
-                db('native_words')
-                .select('*')
-                .then(function(item) {
+
+                // db('native_words')
+                // .select('*')
+                // .then(function(item) {
                 //   for(let i = 0; i < item.length; i++) {
                 //     arr[i] = item[i].id
                 //   }
-                console.log(item)
-                });
+                // console.log(item)
+                // });
+
+                // db.select('*')
+                // .from('foreign_words')
+                // .join('native_words', 'foreign_words.id', 'native_words.fw_id')
+                // .then(function(item) {
+                //     console.log(item)
+                // });
+
+                
+                return nativeWordsQueries.getAll();
             }
         }
     })
@@ -227,7 +238,7 @@ var setNewTranslation = (foreignWord, partOfLang, translation, examples, explana
         { value: foreignWord, name: "Foreign word" } 
     ]);
 
-    if( findFireignWord(foreignWord) ) {
+    if( findForeignWord(foreignWord) ) {
         if( findTranslation(translation) ) {
             throw new GraphQLError("Such translation already exists");
         }
@@ -264,7 +275,7 @@ var findTranslation = (someTr) => {
     });
 }
 
-var findFireignWord = (fw) => {
+var findForeignWord = (fw) => {
     return words.some( word => (word.foreignWord === fw ) );
 }
 
