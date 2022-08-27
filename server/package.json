@@ -4,7 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "migrate": "npx knex migrate:latest --knexfile server/db/knexfile.js",
+    "migrate": "npx knex migrate:latest --knexfile /LearnWords/server/db/knexfile.js",
+    "seed": "cd db && npx knex seed:run",
     "test": "echo \"Error: no test specified\" && exit 1",
     "site": "nodemon server.js"
   },

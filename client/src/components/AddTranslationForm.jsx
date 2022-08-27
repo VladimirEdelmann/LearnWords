@@ -13,19 +13,19 @@ function AddTranslationForm() {
   const [addWord] = useMutation(ADD_WORD);
   const [addTranslation] = useMutation(ADD_TRANSLATION);
 
-  const [foreignWord, setForeignWord] = useState('');
-  const [translations, setTranslations] = useState([{
-    tr_id: 0,
-    partOfLang: undefined,
-    translation: undefined,
+  const [foreign_word, setForeignWord] = useState('');
+  const [native_words, setNativeWords] = useState([{
+    nw_id: 0,
+    lang_part: undefined,
+    native_word: undefined,
     examples: [],
     explanation: undefined,
     association: undefined,
     tags: []
   }]);
 
-  const [langPart, setLangPart] = useState('');
-  const [native, setNative] = useState('');
+  const [lang_part, setLangPart] = useState('');
+  const [native_word, setNativeWord] = useState('');
   const [examples, setExamples] = useState(['']);
   const [explanation, setExplanation] = useState('');
   const [association, setAssociation] = useState('');
@@ -51,7 +51,7 @@ function AddTranslationForm() {
 
   var findTranslation = (someTr) => {
     return words.some( word => {
-      return word.translations.some( tr => (tr.translation === someTr));
+      return word.native_words.some( tr => (tr.native_word === someTr));
     });
   }
   
@@ -63,7 +63,7 @@ function AddTranslationForm() {
     var rs = []
     words.some( w => {
       if(w.foreignWord === fw) {
-        rs = w.translations;
+        rs = w.native_words;
         return true;
       }
       return false;
@@ -74,11 +74,11 @@ function AddTranslationForm() {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    let nativeWordError = isTranslationExist({value: native, fieldName: "Translation"});
+    let nativeWordError = isTranslationExist({value: native_word, fieldName: "Translation"});
 
     if ( emptynessHandler([
-      {value: foreignWord, fieldName: "Foreign word", setError: setFwError},
-      {value: native, fieldName: "Translation", setError: setNwError}
+      {value: foreign_word, fieldName: "Foreign word", setError: setFwError},
+      {value: native_word, fieldName: "Translation", setError: setNwError}
     ]) ) {
       return;
     }
@@ -88,10 +88,10 @@ function AddTranslationForm() {
       return;
     }
 
-    setTranslations(translations.map( (tr, ind) => {
-      tr.tr_id = ind + 1;
-      tr.partOfLang = langPart;
-      tr.translation = native;
+    setNativeWords(native_words.map( (tr, ind) => {
+      tr.nw_id = ind + 1;
+      tr.lang_part = lang_part;
+      tr.native_word = native_word;
       tr.examples = examples;
       tr.explanation = explanation;
       tr.association = association;
@@ -99,22 +99,21 @@ function AddTranslationForm() {
       return tr;
     }));
 
-    var translation = {
-      tr_id: getTranslationDelailsByFW(foreignWord).length + 1,
-      partOfLang: langPart,
-      translation: native,
+    var native_word = {
+      nw_id: getTranslationDelailsByFW(foreign_word).length + 1,
+      pang_part: lang_part,
+      native_word: native_word,
       examples: examples,
       explanation: explanation,
       association: association,
       tags: tags
     }
 
-    if( findForeignWord(foreignWord) ) {
+    if( findForeignWord(foreign_word) ) {
       
-
       addTranslation({
         variables: {
-          foreignWord, translation
+          foreign_word, native_word
         }
       })
       .then ( () => {
@@ -124,7 +123,7 @@ function AddTranslationForm() {
 
       addWord({
         variables: {
-          foreignWord, translations
+          foreign_word, native_words
         }
       })
       .then( () => {
@@ -198,14 +197,14 @@ function AddTranslationForm() {
         <Col>
           <Form.Group>
             <Form.Label>Foreign word</Form.Label>
-            <Form.Control value={foreignWord} onChange={e => setForeignWord(e.target.value)} type="text" placeholder="Add foreign word" />
+            <Form.Control value={foreign_word} onChange={e => setForeignWord(e.target.value)} type="text" placeholder="Add foreign word" />
           </Form.Group>
           { fwError }
         </Col>
         <Col>
           <Form.Group>
             <Form.Label>Translation</Form.Label>
-            <Form.Control value={native} onChange={e => setNative(e.target.value)} type="text" placeholder="Add translation" />
+            <Form.Control value={native_word} onChange={e => setNativeWord(e.target.value)} type="text" placeholder="Add translation" />
           </Form.Group>
           { nwError }
         </Col>
@@ -214,7 +213,7 @@ function AddTranslationForm() {
         <Col>
           <Form.Group>
             <Form.Label>Part of language</Form.Label>
-            <Form.Control value={langPart} onChange={e => setLangPart(e.target.value)} type="text" placeholder="Add part of language" />
+            <Form.Control value={lang_part} onChange={e => setLangPart(e.target.value)} type="text" placeholder="Add part of language" />
           </Form.Group>
         </Col>
       </Row>

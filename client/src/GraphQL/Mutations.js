@@ -2,14 +2,14 @@ import { gql } from '@apollo/client';
 
 const ADD_WORD = gql`
 
-  mutation addWord($foreignWord: String!, $translations: [WordTranslationInputType]!) {
-    addWord(foreignWord: $foreignWord, translations: $translations) {
+  mutation addWord($foreign_word: String!, $native_words: [NativeWordInputType]!) {
+    addWord(foreign_word: $foreign_word, native_words: $native_words) {
       id
-      foreignWord
-      translations {
-        tr_id
-        partOfLang
-        translation
+      foreign_word
+      native_words {
+        nw_id
+        lang_part
+        native_word
         examples
         explanation
         association
@@ -21,14 +21,14 @@ const ADD_WORD = gql`
 
 const ADD_TRANSLATION = gql`
 
-  mutation addNewTranslation($foreignWord: String!, $translation: WordTranslationInputType!) {
-    addNewTranslation(foreignWord: $foreignWord, translation: $translation) {
+  mutation addNewTranslation($foreign_word: String!, $native_word: NativeWordInputType!) {
+    addNewTranslation(foreign_word: $foreign_word, native_word: $native_word) {
       id
-      foreignWord
-      translations {
-        tr_id
-        partOfLang
-        translation
+      foreign_word
+      native_word {
+        nw_id
+        lang_part
+        native_word
         examples
         explanation
         association

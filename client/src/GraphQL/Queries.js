@@ -4,11 +4,12 @@ export const GET_WORDS = gql`
   query {
     getAllWords {
       id
-      foreignWord
-      translations {
-        tr_id
-        partOfLang
-        translation
+      foreign_word
+      native_words {
+        nw_id
+        fw_id
+        lang_part
+        native_word
         examples
         association
         explanation
