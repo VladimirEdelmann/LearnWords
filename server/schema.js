@@ -204,6 +204,21 @@ const isFieldsEmpty = (fields) => {
     }
 }
 
+const fieldsCheck = (fields) => {
+    
+    for(const v in fields) {
+        if(
+            fields[v] === '' || 
+            fields[v] === undefined || 
+            (Array.isArray(fields[v]) && fields[v][0] === '')
+        ) {
+            fields[v] = null;
+        }
+    }
+        
+    return fields;
+}
+
 // gets the elements of the object, returns complete object
 var setAllWords = (id, foreignWord, translations) => {
     return {
@@ -284,6 +299,9 @@ const RootMutationType = new GraphQLObjectType({
                     id: words[words.length - 1].id + 1,
                     foreign_word: args.foreign_word,
                     native_words: args.native_words.map( (tr, ind) => {
+
+                        tr = fieldsCheck(tr);
+
                         isFieldsEmpty([
                             { value: tr.native_word, name: "Translation" }
                         ]);
@@ -311,18 +329,18 @@ const RootMutationType = new GraphQLObjectType({
             description: "Adds new translation to current foreign word",
             args: {
                 foreign_word: { type: GraphQLNonNull(GraphQLString) },
-                native_word: { type: GraphQLNonNull(NativeWordInputType) }
+                native_words: { type: GraphQLNonNull(NativeWordInputType) }
             },
             resolve: (parent, args) => {
                 console.log("The addNewTranslation goes")
                 var rs = setNewTranslation(
                     args.foreign_word,
-                    args.native_word.lang_part, 
-                    args.native_word.native_word, 
-                    args.native_word.examples, 
-                    args.native_word.explanation, 
-                    args.native_word.association, 
-                    args.native_word.tags
+                    args.native_words.lang_part, 
+                    args.native_words.native_word, 
+                    args.native_words.examples, 
+                    args.native_words.explanation, 
+                    args.native_words.association, 
+                    args.native_words.tags
                 );
                 return rs;
             }

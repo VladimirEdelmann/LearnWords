@@ -56,13 +56,13 @@ function AddTranslationForm() {
   }
   
   var findForeignWord = (fw) => {
-    return words.some( word => (word.foreignWord === fw ) );
+    return words.some( word => (word.foreign_word === fw ) );
   }
 
   var getTranslationDelailsByFW = (fw) => {
     var rs = []
     words.some( w => {
-      if(w.foreignWord === fw) {
+      if(w.foreign_word === fw) {
         rs = w.native_words;
         return true;
       }
@@ -99,21 +99,21 @@ function AddTranslationForm() {
       return tr;
     }));
 
-    var native_word = {
-      nw_id: getTranslationDelailsByFW(foreign_word).length + 1,
-      pang_part: lang_part,
-      native_word: native_word,
-      examples: examples,
-      explanation: explanation,
-      association: association,
-      tags: tags
-    }
-
     if( findForeignWord(foreign_word) ) {
+
+      let native_words = {
+        nw_id: getTranslationDelailsByFW(foreign_word).length + 1,
+        pang_part: lang_part,
+        native_word: native_word,
+        examples: examples,
+        explanation: explanation,
+        association: association,
+        tags: tags
+      }
       
       addTranslation({
         variables: {
-          foreign_word, native_word
+          foreign_word, native_words
         }
       })
       .then ( () => {

@@ -8,8 +8,6 @@ class WordsDAO {
         const [id] = await db.insert({
             foreign_word: foreign_word
         }).into('foreign_words').returning('id');
-
-        console.log(id.id)
         
         //adding new record to native words table
         for (let i = 0; i < native_word.length; i++) {
@@ -22,7 +20,7 @@ class WordsDAO {
                 association: native_word[i].association,
                 tags: native_word[i].tags
                 
-            }).into('native_words');  
+            }).into('native_words');
         }
     }
 }
