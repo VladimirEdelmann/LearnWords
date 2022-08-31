@@ -19,14 +19,12 @@ const ADD_WORD = gql`
   }
 `;
 
-const ADD_TRANSLATION = gql`
+const ADD_NEW_TRANSLATION = gql`
 
   mutation addNewTranslation($foreign_word: String!, $native_words: NativeWordInputType!) {
     addNewTranslation(foreign_word: $foreign_word, native_words: $native_words) {
-      id
       foreign_word
       native_words {
-        nw_id
         lang_part
         native_word
         examples
@@ -38,4 +36,4 @@ const ADD_TRANSLATION = gql`
   }
 `;
 
-export {ADD_WORD, ADD_TRANSLATION};
+export {ADD_WORD, ADD_NEW_TRANSLATION};

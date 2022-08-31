@@ -3,7 +3,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import { GET_WORDS } from '../GraphQL/Queries';
 import { Button, Form, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { ADD_WORD, ADD_TRANSLATION } from '../GraphQL/Mutations';
+import { ADD_WORD, ADD_NEW_TRANSLATION } from '../GraphQL/Mutations';
 
 function AddTranslationForm() {
 
@@ -11,7 +11,7 @@ function AddTranslationForm() {
   const { data, loading, error } = useQuery(GET_WORDS);
 
   const [addWord] = useMutation(ADD_WORD);
-  const [addTranslation] = useMutation(ADD_TRANSLATION);
+  const [addNewTranslation] = useMutation(ADD_NEW_TRANSLATION);
 
   const [foreign_word, setForeignWord] = useState('');
   const [native_words, setNativeWords] = useState([{
@@ -49,9 +49,12 @@ function AddTranslationForm() {
     return <div>Error!</div>;
   }
 
-  var findTranslation = (someTr) => {
+  var findTranslation = (foreign, native) => {
     return words.some( word => {
-      return word.native_words.some( tr => (tr.native_word === someTr));
+      if(word.foreign_word === foreign) {
+        return word.native_words.some( tr => (tr.native_word === native));
+      }
+      return false;
     });
   }
   
@@ -74,7 +77,7 @@ function AddTranslationForm() {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    let nativeWordError = isTranslationExist({value: native_word, fieldName: "Translation"});
+    let nativeWordError = isTranslationExist({fwList: foreign_word, value: native_word, fieldName: "Translation"});
 
     if ( emptynessHandler([
       {value: foreign_word, fieldName: "Foreign word", setError: setFwError},
@@ -103,15 +106,17 @@ function AddTranslationForm() {
 
       let native_words = {
         nw_id: getTranslationDelailsByFW(foreign_word).length + 1,
-        pang_part: lang_part,
+        lang_part: lang_part,
         native_word: native_word,
         examples: examples,
         explanation: explanation,
         association: association,
         tags: tags
       }
+
+      console.log("native_words: ", native_words)
       
-      addTranslation({
+      addNewTranslation({
         variables: {
           foreign_word, native_words
         }
@@ -175,7 +180,7 @@ function AddTranslationForm() {
   }
 
   const isTranslationExist = (error) => {
-    return findTranslation(error.value) && <div style={{color: "red"}}>Dublicate Error: Translation "{error.value}" already exists</div>;
+    return findTranslation(error.fwList, error.value) && <div style={{color: "red"}}>Dublicate Error: Translation "{error.value}" already exists</div>;
   }
 
   const emptynessHandler = (error) => {

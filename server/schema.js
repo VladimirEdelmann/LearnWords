@@ -24,7 +24,7 @@ joinQueries.getForeignIncludeNative().then((v) => {
 
 const wordsTemp = require('./dao/mutations/Words');
 
-const getAllForeignWords = () => ( words.map( (word) => (word.foreignWord)) );
+const getAllForeignWords = () => ( words.map( (word) => (word.foreignWord) ) );
 
 const getTranslationsByForeignWord = (foreignWord) => {
     var rs = []
@@ -36,6 +36,19 @@ const getTranslationsByForeignWord = (foreignWord) => {
         return false;
     });
     return rs;
+}
+
+const getForeignWordId = (foreign_word) => {
+    let id = undefined;
+
+    words.some( word => {
+        if( word.foreign_word === foreign_word ) {
+            id = word.id;
+            return true;
+        }
+    });
+
+    return id;
 }
 
 const WordType = new GraphQLObjectType({
@@ -56,30 +69,6 @@ const NativeWordType = new GraphQLObjectType({
         fw_id: { type: GraphQLNonNull(GraphQLInt)},
         lang_part: { type: GraphQLString },
         native_word: { type: GraphQLNonNull(GraphQLString) },
-        examples: { type: GraphQLList(GraphQLString) },
-        explanation: { type: GraphQLString },
-        association: { type: GraphQLString },
-        tags: { type: GraphQLList(GraphQLString) }
-    })
-});
-
-const WordReturnType = new GraphQLObjectType({
-    name: "WordReturnType",
-    description: "Doesn't return WordTranslationType as list",
-    fields: () => ({
-        id: { type: GraphQLNonNull(GraphQLInt) },
-        foreignWord: { type: GraphQLNonNull(GraphQLString) },
-        translations: { type: GraphQLNonNull(WordTranslationType) }
-    })
-});
-
-const WordTranslationType = new GraphQLObjectType({
-    name: "WordTranslationType",
-    description: "Represents a different translation to mother language for foreign word",
-    fields: () => ({
-        tr_id: { type: GraphQLNonNull(GraphQLInt) },
-        partOfLang: { type: GraphQLString },
-        translation: { type: GraphQLNonNull(GraphQLString) },
         examples: { type: GraphQLList(GraphQLString) },
         explanation: { type: GraphQLString },
         association: { type: GraphQLString },
@@ -232,45 +221,37 @@ var setAllWords = (id, foreignWord, translations) => {
 // get foreign word and usual fields of translation 
 // returns an array of translations
 var setNewTranslation = (foreignWord, partOfLang, translation, examples, explanation, association, tags) => {
-    var thisword
-
+    
     isFieldsEmpty([ 
         { value: foreignWord, name: "Foreign word" } 
     ]);
 
-    if( !findForeignWord(foreignWord) ) {
+    if( findForeignWord(foreignWord) ) {
         if( findTranslation(translation) ) {
             throw new GraphQLError("Such translation already exists");
         }
-        words.some( word => {
-            isFieldsEmpty([ 
-                { value: translation, name: "Translation" } 
-            ]);
-            
-            if (word.foreign_word === foreignWord) {
-                word.native_words.push({
-                    nw_id: getTranslationsByForeignWord(foreignWord).length + 1,
-                    lang_part: partOfLang,
-                    native_word: translation,
-                    examples: examples,
-                    explanation: explanation,
-                    association: association,
-                    tags: tags
-                });
-                thisword = word;
-                return true;
-            }
-        });
-        return setAllWords(thisword.id, thisword.foreignWord, thisword.translations);
+
+        return {
+            fw_id: getForeignWordId(foreignWord),
+            lang_part: partOfLang,
+            native_word: translation,
+            examples: examples,
+            explanation: explanation,
+            association: association,
+            tags: tags
+        }
     } else { 
-        throw new GraphQLError("Such foreign word already exist!"); 
+        throw new GraphQLError("Error: It is not separate translation!"); 
     }
 }
 
 // searches for at least one translation and returns if found
-var findTranslation = (someTr) => {
+var findTranslation = (fw, someTr) => {
     return words.some( word => {
-        return word.native_words.some( tr => (tr.native_word === someTr));
+        if(word.foreign_word === fw) {
+            return word.native_words.some( tr => (tr.native_word === someTr));
+        }
+        return false;
     });
 }
 
@@ -333,7 +314,7 @@ const RootMutationType = new GraphQLObjectType({
             },
             resolve: (parent, args) => {
                 console.log("The addNewTranslation goes")
-                var rs = setNewTranslation(
+                let native = setNewTranslation(
                     args.foreign_word,
                     args.native_words.lang_part, 
                     args.native_words.native_word, 
@@ -342,7 +323,14 @@ const RootMutationType = new GraphQLObjectType({
                     args.native_words.association, 
                     args.native_words.tags
                 );
-                return rs;
+
+                wordsTemp.addNewNative(native)
+
+                return {
+                    id: getForeignWordId(args.foreign_word),
+                    foreign_word: args.foreign_word,
+                    native_words: native
+                };
             }
         },
         editWord: {
