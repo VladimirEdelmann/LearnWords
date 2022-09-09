@@ -122,7 +122,7 @@ function AddTranslationForm() {
         }
       })
       .then ( () => {
-        window.location.reload();
+        window.location.reload(true);
       });
     } else {
 
@@ -153,7 +153,7 @@ function AddTranslationForm() {
   }
 
   const handleAddExampleClick = () => {
-    setExamples([...examples, ""]);
+    setExamples([...examples, null]);
   }
 
   //Tags

@@ -8,8 +8,8 @@ const {
     GraphQLInputObjectType,
     GraphQLError
 } = require('graphql');
-const fs = require('fs');
-const fileName = './db/words.json';
+// const fs = require('fs');
+// const fileName = './db/words.json';
 // var words = require('./db/words.json');
 
 const nativeWordsQueries = require('./dao/queries/NativeWordsQueries');
@@ -59,6 +59,17 @@ const WordType = new GraphQLObjectType({
         foreign_word: { type: GraphQLNonNull(GraphQLString) },
         native_words: { type: GraphQLNonNull(GraphQLList(NativeWordType)) }
     })
+});
+
+const SingleWordType = new GraphQLObjectType({
+    name: "SingleWordType",
+    description: "Represents foreign and only one record of native translation",
+    fields: () => ({
+        id: { type: GraphQLNonNull(GraphQLInt) },
+        foreign_word: { type: GraphQLNonNull(GraphQLString) },
+        native_words: { type: GraphQLNonNull(NativeWordType) }
+    })
+
 });
 
 const NativeWordType = new GraphQLObjectType({
@@ -298,7 +309,7 @@ const RootMutationType = new GraphQLObjectType({
                 }
                 
                 wordsTemp.createWord(word.foreign_word, word.native_words);
-                console.log();
+                console.log(JSON.stringify(words, null, 2));
                 // fs.writeFile(fileName, JSON.stringify(words, null, 2), (err) => {
                 //     if (err) return console.log(err);
                 // });
@@ -306,7 +317,7 @@ const RootMutationType = new GraphQLObjectType({
             }
         },
         addNewTranslation: {
-            type: WordType,
+            type: SingleWordType,
             description: "Adds new translation to current foreign word",
             args: {
                 foreign_word: { type: GraphQLNonNull(GraphQLString) },

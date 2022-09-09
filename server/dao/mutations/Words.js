@@ -30,7 +30,7 @@ class WordsDAO {
             lang_part: native_word.lang_part,
             native_word: native_word.native_word,
             examples: native_word.examples,
-            explanation: native_word.examples,
+            explanation: native_word.explanation,
             association: native_word.association,
             tags: native_word.tags
         }).into('native_words');
