@@ -5,7 +5,7 @@
  exports.up = function(knex) {
     return knex.schema.createTable('foreign_words', table => {
       table.increments('id').unsigned().primary();
-      table.string('foreign_word', 100).notNullable( );
+      table.string('foreign_word', 100).notNullable();
   
       // table.foreign('id').references('fw_id').inTable('native_words');
     });

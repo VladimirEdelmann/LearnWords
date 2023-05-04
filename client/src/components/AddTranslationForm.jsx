@@ -36,8 +36,8 @@ function AddTranslationForm() {
 
   useEffect(() => {
     if(!loading){
-      setWords(data.getAllWords);
       console.log(data)
+      setWords(data.getAllWords);
     }
   }, [data, loading]);
   
