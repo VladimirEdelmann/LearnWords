@@ -22,7 +22,7 @@ joinQueries.getForeignIncludeNative().then((v) => {
     }
 });
 
-const wordsTemp = require('./dao/mutations/Words');
+const wordModifier = require('./dao/mutations/Words');
 
 const getAllForeignWords = () => ( words.map( (word) => (word.foreignWord) ) );
 
@@ -308,7 +308,7 @@ const RootMutationType = new GraphQLObjectType({
                     })
                 }
                 
-                wordsTemp.createWord(word.foreign_word, word.native_words);
+                wordModifier.createWord(word.foreign_word, word.native_words);
                 console.log(JSON.stringify(words, null, 2));
                 // fs.writeFile(fileName, JSON.stringify(words, null, 2), (err) => {
                 //     if (err) return console.log(err);
@@ -335,7 +335,7 @@ const RootMutationType = new GraphQLObjectType({
                     args.native_words.tags
                 );
 
-                wordsTemp.addNewNative(native)
+                wordModifier.addNewNative(native)
 
                 return {
                     id: getForeignWordId(args.foreign_word),

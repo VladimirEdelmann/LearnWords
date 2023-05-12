@@ -17,7 +17,7 @@ class WordsDAO {
                 lang_part: native_word[i].lang_part,
                 native_word: native_word[i].native_word,
                 examples: native_word[i].examples,
-                explanation: native_word[i].examples,
+                explanation: native_word[i].explanation,
                 association: native_word[i].association,
                 tags: native_word[i].tags
                 
@@ -33,7 +33,7 @@ class WordsDAO {
                 lang_part: native_word[i].lang_part,
                 native_word: native_word[i].native_word,
                 examples: native_word[i].examples,
-                explanation: native_word[i].examples,
+                explanation: native_word[i].explanation,
                 association: native_word[i].association,
                 tags: native_word[i].tags
                 

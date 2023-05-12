@@ -5,6 +5,8 @@ import { Button, Form, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { ADD_WORD, ADD_NEW_TRANSLATION } from '../GraphQL/Mutations';
 
+import validate from '../utils';
+
 function AddTranslationForm() {
 
   const [words, setWords] = useState([]);
@@ -36,7 +38,7 @@ function AddTranslationForm() {
 
   useEffect(() => {
     if(!loading){
-      console.log(data)
+      console.log('AddTranslationForm component', data)
       setWords(data.getAllWords);
     }
   }, [data, loading]);
@@ -224,6 +226,7 @@ function AddTranslationForm() {
       </Row>
       {
         examples.map( (v, i) => {
+          console.log('V', v)
           return (
             <div key={i}>
               <Row className="mb-3">
@@ -235,7 +238,7 @@ function AddTranslationForm() {
                 </Col>
                 <Col>
                   {examples.length !== 1 && <Button style={{ marginRight: 20, marginTop: 30 }} onClick={() => handleRemoveExampleClick(i)}>-</Button>}
-                  {examples.length - 1 === i && <Button style={{ marginRight: 20, marginTop: 30 }} onClick={handleAddExampleClick}>+</Button>}
+                  {examples.length - 1 === i && validate(v) && <Button style={{ marginRight: 20, marginTop: 30 }} onClick={handleAddExampleClick}>+</Button>}
                 </Col>
               </Row>
               {/* <div style={{ marginTop: 20 }}>{JSON.stringify(exampleFields[i])}</div> */}
@@ -272,7 +275,7 @@ function AddTranslationForm() {
                 </Col>
                 <Col>
                   {tags.length !== 1 && <Button style={{ marginRight: 20, marginTop: 30 }} onClick={() => handleRemoveTagClick(i)}>-</Button>}
-                  {tags.length - 1 === i && <Button style={{ marginRight: 20, marginTop: 30 }} onClick={handleAddTagClick}>+</Button>}
+                  {tags.length - 1 === i && v !== '' && <Button style={{ marginRight: 20, marginTop: 30 }} onClick={handleAddTagClick}>+</Button>}
                 </Col>
               </Row>
             </div>

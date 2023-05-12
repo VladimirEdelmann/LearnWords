@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_WORDS } from '../GraphQL/Queries';
+
+import validate from '../utils';
 import '../css/Words.css';
 
 function GetWords() {
@@ -11,7 +13,7 @@ function GetWords() {
   useEffect(() => {
     if(!loading){
       setWords(data.getAllWords);
-      console.log(data)
+      console.log('words component', data)
     }
   }, [data, loading]);
   
@@ -21,12 +23,6 @@ function GetWords() {
   if (error) {
     console.error(error);
     return <div>Error!</div>;
-  }
-
-  let validate = (word) => {
-    if(word === "" || word === undefined || null || word.replace(/\s/g, '') === "") {
-      return false;
-    }
   }
    
   return (
@@ -51,8 +47,13 @@ function GetWords() {
             let formated_association = nw.association ? 
               <div>Association: <div className='nw-ass'>{nw.association}</div></div> : didntset("Association");
             
+            // console.log(nw.tags);
+            
             let filtered_tags = nw.tags
               ? nw.tags.map( (e, i) => {
+
+                // console.log(e, validate(e))
+
                 if(validate(e)) {
                   return <div className='nw-exa' key={i}>{`${++i}. ${e}`}</div>
                 } else {
