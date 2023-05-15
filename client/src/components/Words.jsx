@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_WORDS } from '../GraphQL/Queries';
 
-import validate from '../utils';
+import { validate } from '../utils';
 import '../css/Words.css';
 
 function GetWords() {
@@ -35,7 +35,16 @@ function GetWords() {
             let didntset = (name) => <div>{`${name}: Didnt set`}</div>;
 
             var filtered_examples = nw.examples 
-              ? nw.examples.map( (e, i) => <div className='nw-exa' key={i}>{`${++i}. ${e}`}</div> ) 
+              ? nw.examples.map( (e, i) => {
+
+                // console.log(e, validate(e))
+
+                if(validate(e)) {
+                  return <div className='nw-exa' key={i}>{`${++i}. ${e}`}</div>
+                } else {
+                  return <div className='nw-exa' key={i}>{`${++i}. Didn't set`}</div>
+                }
+              })
               : "Didn't set";
 
             var div_examples = <div>Examples: {filtered_examples}</div>;

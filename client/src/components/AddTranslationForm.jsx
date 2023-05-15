@@ -5,7 +5,7 @@ import { Button, Form, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { ADD_WORD, ADD_NEW_TRANSLATION } from '../GraphQL/Mutations';
 
-import validate from '../utils';
+import { validate } from '../utils';
 
 function AddTranslationForm() {
 
